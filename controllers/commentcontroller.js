@@ -11,6 +11,7 @@ router.get('/practice', validateSession, function(req, res)
 router.post('/create', validateSession, (req, res) => {
 
     const commentPost = {
+        apostId: req.body.comment.apostId,
         owner: req.user.id,
         firstName: req.user.firstName,
         comment: req.body.comment.comment,
@@ -36,6 +37,14 @@ router.get('/mine', validateSession, (req, res) => {
     .catch(err => res.status(500).json({ error: err}))
 });
 
+router.get('/onpost/all', validateSession, (req, res) => {
+    Comment.findAll({
+        where: { apostId: req.body.comment.apostId }
+    })
+    .then(comments => res.status(200).json(comments))
+    .catch(err => res.status(500).json({ error: err }))
+});
+
 router.put("/update/:commentId", validateSession, function(req,res) {
     const updatecommentPost = {
         content: req.body.post.content,
@@ -49,7 +58,7 @@ router.put("/update/:commentId", validateSession, function(req,res) {
 })
 
 router.delete("/delete/:id", validateSession, function (req, res) {
-    const query = { where: { id: req. params.id, owner: req.user.id } };
+    const query = { where: { id: req.params.id, owner: req.user.id } };
 
     Comment.destroy(query)
     .then(() => res.status(200).json({message: "Comment Deleted."}))
